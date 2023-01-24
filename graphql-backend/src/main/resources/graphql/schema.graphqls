@@ -1,0 +1,127 @@
+type Query {
+    fetchQuizExamMode(id: ID!): QuizExamModeMode
+    fetchQuizManageMode(id: ID!): QuizManageMode
+    fetchAllPublishedQuiz(first: Int!, after: String): QuizExamModeModeConnection
+    generateQuizResult(quizId: ID!, answers: [QuestionAnswer!]!): [Boolean!]!
+}
+
+input QuestionAnswer {
+    questionIndex: Int!,
+    answers: [Int!]
+}
+
+interface MutationResponse {
+    successful: Boolean!
+    errorMessages: [String]
+}
+
+type CreateNewUserMutationResponse implements MutationResponse {
+    successful: Boolean!
+    errorMessages: [String]
+    user: User
+}
+
+type QuizMutationResponse implements MutationResponse {
+    successful: Boolean!
+    errorMessages: [String]
+    quiz: QuizManageMode
+}
+
+input UpdateQuizMutationInput {
+    title: String!
+    draft: Boolean!
+    questions: [QuestionInput]
+}
+
+type UpdateQuizMutationResponse implements MutationResponse {
+    successful: Boolean!
+    errorMessages: [String]
+    quiz: QuizManageMode
+}
+
+type Mutation {
+    createNewUser(name: String!, password: String!): CreateNewUserMutationResponse!
+    createNewQuiz(title: String!): QuizMutationResponse!
+    updateQuiz(id: ID!, input: UpdateQuizMutationInput): QuizMutationResponse!
+    deleteQuiz(id: ID!): Boolean!
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}
+
+type User implements Node {
+    id: ID!
+    name: String!
+    role: Role!
+}
+
+interface Quiz implements Node {
+    id: ID!
+    urlPath: String!
+    title: String!
+}
+
+type QuizManageMode implements Quiz & Node {
+    id: ID!
+    urlPath: String!
+    title: String!
+    draft: Boolean!
+    authorUserId: Int!
+    questions: [QuestionManageMode]
+}
+
+type QuizExamModeMode implements Quiz & Node {
+    id: ID!
+    urlPath: String!
+    title: String!
+    questions: [QuestionExamMode]
+}
+
+type QuizExamModeModeEdge {
+    cursor: String!
+    node: QuizExamModeMode!
+}
+
+type QuizExamModeModeConnection {
+    edges: [QuizExamModeModeEdge]
+    pageInfo: PageInfo
+}
+
+input QuestionInput {
+    statement: String!
+    singleSelect: Boolean!
+    options: [String!]
+    correctAnswers: [Int!]
+}
+
+interface Question {
+    statement: String!
+    singleSelect: Boolean!
+    options: [String!]
+}
+
+type QuestionExamMode implements Question {
+    statement: String!
+    singleSelect: Boolean!
+    options: [String!]
+}
+
+type QuestionManageMode implements Question {
+    statement: String!
+    singleSelect: Boolean!
+    options: [String!]
+    correctAnswers: [Int!]!
+}
+
+interface Node {
+    id: ID!
+}
+
+enum Role {
+    USER
+    VISITOR
+}
